@@ -33,6 +33,7 @@ async function run() {
         const ReviewCollection = client.db("ParlourDb").collection("Review");
         const AddserviceCollection = client.db("ParlourDb").collection("Addservice");
         const ServiceItemCollection = client.db("ParlourDb").collection("ServiceItem");
+        const PaymentCollection = client.db("ParlourDb").collection("Payment");
         
 
         app.get('/Shop', async (req, res) => {
@@ -156,7 +157,7 @@ async function run() {
             res.send(result)
         })
 
-
+      //payment intent 
         app.post('/create-payment-intent', async (req, res) => {
             const { price } = req.body;
             const amount = Math.max(parseInt(price * 100), 50);
@@ -175,7 +176,24 @@ async function run() {
             }
         });
 
+
+        app.post('/Payment',async(req,res)=>{
+            const payment =req.body;
+            const paymentResult =await PaymentCollection.insertOne(payment);
+           console.log("payment data ",payment);
+            res.send(paymentResult);
+            
+        })
    
+        app.get('/Payment/:email', async (req, res) => {
+            const query = { email: req.params.email };
+            if (!req.params.email) {
+                return res.status(403).send({ message: "forbidden access" });
+            }
+            const paymentRecords = await PaymentCollection.find(query).toArray();
+            res.send(paymentRecords);
+        });
+
 
 
 
